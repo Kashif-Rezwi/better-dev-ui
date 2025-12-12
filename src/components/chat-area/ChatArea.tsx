@@ -6,8 +6,9 @@ import { Greeting } from './Greeting';
 import { ChatSkeleton } from './ChatSkeleton';
 import { MessageList } from './MessageList';
 import { useConversationMessages } from '../../hooks/useConversationMessages';
-import { useCreateConversationWithMessage } from '../../hooks/conversations';
+import { useCreateConversationWithMessage, useConversation } from '../../hooks/conversations';
 import { useScrollToMessage } from '../../hooks/useScrollToMessage';
+import { useConversationMode } from '../../hooks/useConversationMode';
 import type { UIMessage, ChatRouterState, ChatAreaProps } from '@/types';
 import { ROUTES } from '../../constants';
 
@@ -66,6 +67,14 @@ export function ChatArea({
   const { mutateAsync: createConversationWithMessage, isPending: isCreating } =
     useCreateConversationWithMessage();
 
+  const { data: conversation } = useConversation(conversationId || '');
+
+  // Use custom hook for mode management
+  const { currentMode, setMode, initializeModeForConversation } = useConversationMode(
+    conversationId,
+    conversation
+  );
+
   const handleSend = async () => {
     if (!message.trim()) return;
 
@@ -84,7 +93,11 @@ export function ChatArea({
           title: 'Untitled',
           firstMessage: messageText,
           systemPrompt: draftSystemPrompt || undefined,
+          operationalMode: currentMode,
         });
+
+        // Initialize mode for the new conversation
+        initializeModeForConversation(result.id, currentMode);
 
         // Clear draft system prompt after successful creation
         onDraftSystemPromptChange?.('');
@@ -133,6 +146,9 @@ export function ChatArea({
                   disabled={isCreating}
                   isStreaming={false}
                   textareaRef={textareaRef}
+                  currentMode={currentMode}
+                  onModeChange={setMode}
+                  showModeSelector={true}
                 />
               </div>
             </div>
@@ -158,6 +174,9 @@ export function ChatArea({
                   disabled={isDisabled}
                   isStreaming={false}
                   textareaRef={textareaRef}
+                  currentMode={currentMode}
+                  onModeChange={setMode}
+                  showModeSelector={hasConversation}
                 />
               </div>
             </div>
@@ -195,6 +214,9 @@ export function ChatArea({
             disabled={isDisabled}
             isStreaming={isStreamingOrCreating}
             textareaRef={textareaRef}
+            currentMode={currentMode}
+            onModeChange={setMode}
+            showModeSelector={true}
           />
         </div>
       )}
