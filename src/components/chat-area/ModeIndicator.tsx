@@ -1,38 +1,43 @@
-import { IoFlashOutline, IoBulbOutline, IoSparklesOutline } from 'react-icons/io5';
-import type { OperationalMode } from '../../types';
+import { IoFlashOutline, IoBulbOutline } from 'react-icons/io5';
+import type { EffectiveMode } from '../../types';
 
 interface ModeIndicatorProps {
-    mode: OperationalMode;
+    mode: EffectiveMode;
+    wasAutoSelected?: boolean;
 }
 
-const MODE_DISPLAY: Record<OperationalMode, { icon: React.ComponentType<{ className?: string }>; label: string; color: string }> = {
+const MODE_DISPLAY: Record<EffectiveMode, { icon: React.ComponentType<{ className?: string }>; color: string; label: string }> = {
     fast: {
         icon: IoFlashOutline,
-        label: 'Fast',
         color: 'text-blue-400',
+        label: 'Fast',
     },
     thinking: {
         icon: IoBulbOutline,
-        label: 'Thinking',
         color: 'text-purple-400',
-    },
-    auto: {
-        icon: IoSparklesOutline,
-        label: 'Auto',
-        color: 'text-teal-400',
+        label: 'Thinking',
     },
 };
 
-export function ModeIndicator({ mode }: ModeIndicatorProps) {
+export function ModeIndicator({ mode, wasAutoSelected = false }: ModeIndicatorProps) {
     const config = MODE_DISPLAY[mode];
     if (!config) return null;
 
     const Icon = config.icon;
+    const tooltipText = wasAutoSelected
+        ? `Mode: ${config.label} (Auto-selected based on query complexity)`
+        : `Mode: ${config.label}`;
 
     return (
-        <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/5 border border-white/10">
-            <Icon className={`w-3 h-3 ${config.color}`} />
-            <span className="text-xs text-foreground/60">{config.label}</span>
+        <div
+            className="flex items-center gap-1 text-xs text-foreground/60"
+            title={tooltipText}
+        >
+            <Icon className={`w-3.5 h-3.5 ${config.color}`} />
+            <span>{config.label}</span>
+            {wasAutoSelected && (
+                <span className="text-foreground/40">(Auto)</span>
+            )}
         </div>
     );
 }

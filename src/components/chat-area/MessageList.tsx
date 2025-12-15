@@ -208,16 +208,22 @@ export function MessageList({
                   }
                 })}
 
-                {msg.metadata?.createdAt && (
+                {/* Show timestamp and mode indicator */}
+                {(msg.metadata?.createdAt || msg.metadata?.effectiveMode) && (
                   <div className="flex items-center gap-2 mt-1">
-                    <div
-                      className="text-xs text-foreground/40"
-                      title={format.formatFullDateTime(msg.metadata.createdAt)}
-                    >
-                      {format.formatRelativeTime(msg.metadata.createdAt)}
-                    </div>
-                    {msg.metadata?.operationalMode && (
-                      <ModeIndicator mode={msg.metadata.operationalMode} />
+                    {msg.metadata?.effectiveMode && (
+                      <ModeIndicator
+                        mode={msg.metadata.effectiveMode}
+                        wasAutoSelected={msg.metadata.operationalMode === 'auto'}
+                      />
+                    )}
+                    {msg.metadata?.createdAt && (
+                      <div
+                        className="text-xs text-foreground/40"
+                        title={format.formatFullDateTime(msg.metadata.createdAt)}
+                      >
+                        {format.formatRelativeTime(msg.metadata.createdAt)}
+                      </div>
                     )}
                   </div>
                 )}
