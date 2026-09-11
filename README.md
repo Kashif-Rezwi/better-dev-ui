@@ -1,133 +1,84 @@
 # Better DEV UI
 
-> Modern, real-time multi-modal AI chat interface built with React 19, TypeScript, Tailwind CSS v4, and Vercel AI SDK v5.
+> React 19 web client for Better DEV, a multi-modal AI chat platform with SSE streaming, tool-call visualization, file attachments, and conversation management.
 
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat&logo=react&logoColor=white)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-7.1-646CFF?style=flat&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![TailwindCSS](https://img.shields.io/badge/Tailwind-4.1-06B6D4?style=flat&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![AI SDK](https://img.shields.io/badge/Vercel_AI_SDK-v5-black?style=flat&logo=vercel&logoColor=white)](https://sdk.vercel.ai/)
+[![Vite](https://img.shields.io/badge/Vite-7-646CFF?style=flat&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4?style=flat&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Vercel AI SDK](https://img.shields.io/badge/Vercel_AI_SDK-v5-black?style=flat&logo=vercel&logoColor=white)](https://sdk.vercel.ai/)
 
----
+## Overview
 
-## 📋 Table of Contents
-
-- [Overview](#-overview)
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Project Structure](#-project-structure)
-- [Architecture & Data Flow](#-architecture--data-flow)
-- [Getting Started](#-getting-started)
-- [Environment Variables](#-environment-variables)
-- [Development & Scripts](#-development--scripts)
-- [Deployment](#-deployment)
-
----
-
-## 🌟 Overview
-
-Better DEV UI is a production-grade, multi-modal chat application designed for low-latency AI conversations. It features streaming text, tool-calling execution visualization, file and image drag-and-drop attachments, operational mode selectors, system prompt customizations, and optimistic UI mutations.
+Better DEV UI is the frontend for the [Better DEV API](https://github.com/Kashif-Rezwi/better-dev-api), a multi-modal AI chat platform. It provides a dark-themed chat interface with real-time SSE streaming, autonomous tool-call visualization, image/document attachments, and per-conversation operational modes.
 
 - **Production URL**: [better-dev-ui.vercel.app](https://better-dev-ui.vercel.app)
-- **Backend API**: [better-dev-api (GitHub)](https://github.com/Kashif-Rezwi/better-dev-api) / [API Health Endpoint](https://better-dev-api.onrender.com/health)
+- **Backend API**: [better-dev-api](https://github.com/Kashif-Rezwi/better-dev-api) — health check at [better-dev-api.onrender.com/health](https://better-dev-api.onrender.com/health)
+- **Engineering standards**: see [ARCHITECTURE.md](./ARCHITECTURE.md)
 
----
+## Features
 
-## ✨ Features
+### Chat & streaming
 
-### 🎨 User Experience & Design
-- **Real-Time SSE Streaming**: Token-by-token streaming with smooth markdown rendering and syntax highlighting.
-- **Tool Execution Visualization**: Visual status cards for autonomous tool calls (e.g., Tavily web search).
-- **Multi-Modal Attachments**: Drag-and-drop support for PDF documents, Word `.docx`, and images with upload progress tracking.
-- **Dark Mode UI**: Curated dark interface with custom semantic tokens and smooth animations.
-- **Smart Scroll Management**: Intelligent auto-scrolling that pauses when the user scrolls up to review history.
+- **Real-time SSE streaming** — token-by-token responses via `useChat` and `DefaultChatTransport` (Vercel AI SDK v5).
+- **Operational mode switcher** — Fast (quick & concise), Thinking (detailed & comprehensive), or Auto (AI decides). The preference persists to local storage and is sent to the API as a per-request override.
+- **System prompt customization** — per-conversation instructions edited in the right-hand panel (drafted locally for new conversations).
+- **Auto title generation** — conversation titles are AI-generated in the background from the first message.
 
-### 💬 Conversational Power
-- **Operational Mode Switcher**: Seamlessly switch between **Fast** (low latency), **Thinking** (deep reasoning), and **Auto** (AI classified).
-- **System Prompt Customization**: Set custom persona instructions per conversation.
-- **Optimistic Mutations**: Instant UI updates on conversation renaming, creation, and deletion with TanStack Query cache rollback on error.
-- **Auto Title Generation**: AI auto-generates conversation titles in the background upon first message submission.
+### Tool calling
 
----
+- **Tool status cards** — web-search calls render as expandable status cards with pending/success/error states.
+- **Sources & citations** — search results appear as a favicon source grid, and the AI-generated summary renders `[n]` citation links that open sources in a new tab.
 
-## 🛠️ Tech Stack
+### Attachments & files
+
+- **Drag-and-drop attachments** — images, PDFs, and `.docx` files with client-side validation (10 MB max, 5 per message).
+- **Upload progress** — per-file progress tracking with error handling and blob-URL cleanup.
+
+### UX & state
+
+- **Optimistic mutations** — conversation creation and deletion update the list instantly with query-cache rollback on error (TanStack Query).
+- **Smart scroll management** — auto-scroll pauses when you scroll up; a scroll-to-bottom button appears when needed.
+- **Markdown rendering** — GFM-powered messages with code blocks that include a header and copy button.
+- **Dark-themed UI** — Tailwind CSS v4 design tokens on headless Radix UI primitives, with Sonner toasts.
+
+## Tech Stack
 
 | Layer | Technologies |
 | :--- | :--- |
-| **Core Framework** | React 19, TypeScript 5.9, Vite 7.1 |
-| **Styling & UI** | Tailwind CSS 4.1, Radix UI Primitives, Lucide Icons, Sonner |
-| **State & Cache** | TanStack Query v5, React Hook Form, Safe localStorage Wrapper |
-| **Streaming & AI** | Vercel AI SDK v5 (`DefaultChatTransport`, `useChat`) |
-| **Markdown Rendering** | `react-markdown`, `remark-gfm`, `rehype-highlight` |
-| **HTTP Client** | Axios with request/response authentication interceptors |
+| Core framework | React 19, TypeScript 5.9, Vite 7 |
+| Styling & UI | Tailwind CSS 4, Radix UI primitives, Ionicons (react-icons), Sonner |
+| State & cache | TanStack Query v5, React Hook Form, safe localStorage wrapper |
+| Streaming & AI | Vercel AI SDK v5 (`useChat`, `DefaultChatTransport`) |
+| Markdown | `react-markdown`, `remark-gfm` |
 
----
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 better-dev-ui/
 ├── public/                      # Static assets & logos
-│   └── dev-logo-light.png
-│
 ├── src/
-│   ├── components/              # UI components
-│   │   ├── actions-panel/       # Left sidebar (Recents, UserProfile, Navigation)
-│   │   ├── activities-panel/    # Right sidebar (System prompt editor)
-│   │   ├── chat-area/           # Main chat interface (MessageList, Composer, ModeSelector)
-│   │   ├── common/              # Shared components (Markdown, ProtectedRoute, ErrorBoundary, Skeleton)
-│   │   └── ui/                  # Radix UI primitives (Button, Dialog, DropdownMenu, Avatar, Card)
-│   │
-│   ├── constants/               # API endpoints, storage keys, validation rules
-│   │
-│   ├── hooks/                   # Custom React hooks
-│   │   ├── chat/                # useChatAttachments
-│   │   ├── conversations/       # React Query hooks for conversation CRUD & cache operations
-│   │   ├── ui/                  # usePanelState
-│   │   ├── useAuth.ts           # Authentication hooks
-│   │   ├── useConversationMessages.ts # AI SDK v5 integration
-│   │   ├── useModePreference.ts # Operational mode persistence
-│   │   └── useScrollToMessage.ts # Smooth scroll management
-│   │
-│   ├── pages/                   # Route components (ChatPage, LoginPage, RegisterPage)
-│   │
-│   ├── services/                # Pure TypeScript API services
-│   │   ├── api.ts               # Axios instance & token interceptors
-│   │   ├── auth.service.ts      # Auth endpoints
-│   │   ├── conversation.service.ts # Conversation CRUD & system prompt APIs
-│   │   ├── upload.service.ts    # File upload handling
-│   │   ├── chat-transport.service.ts # AI SDK SSE transport
-│   │   └── query-client.ts      # TanStack Query client configuration
-│   │
-│   ├── types/                   # Domain type definitions
-│   │   ├── auth.ts
-│   │   ├── chat.ts
-│   │   ├── conversation.ts
-│   │   └── index.ts
-│   │
-│   ├── utils/                   # Pure utility functions
-│   │   ├── cn.ts                # Class merging (clsx + twMerge)
-│   │   ├── date.ts              # Relative time formatting
-│   │   ├── message.ts           # Message transformations
-│   │   ├── storage.ts           # Safe localStorage wrapper
-│   │   ├── toast.ts             # Toast helper
-│   │   ├── conversationHelpers.ts # Optimistic conversation generators
-│   │   └── optimisticUpdates.ts # Query cache update helpers
-│   │
-│   ├── App.tsx                  # Application route setup with code-splitting
-│   ├── main.tsx                 # React root entry point
+│   ├── components/              # Feature + layout components
+│   │   ├── actions-panel/       # Left sidebar (recents, user profile)
+│   │   ├── activities-panel/    # Right sidebar (system prompt editor)
+│   │   ├── chat-area/           # Message list, composer, mode selector, tool cards
+│   │   ├── common/              # Markdown, ProtectedRoute, ErrorBoundary, ConfirmDialog, …
+│   │   └── ui/                  # Headless Radix primitives (Button, Dialog, Dropdown, …)
+│   ├── constants/               # Routes, storage keys, API config, validation rules
+│   ├── hooks/                   # Domain & UI hooks (conversations, auth, panels, attachments)
+│   ├── pages/                   # ChatPage, LoginPage, RegisterPage (lazy-loaded routes)
+│   ├── services/                # Pure TypeScript API clients & transport
+│   ├── types/                   # Domain types & discriminated unions
+│   ├── utils/                   # Pure helpers (cn, date, message, storage, toast)
+│   ├── App.tsx                  # Route setup with code-splitting
+│   ├── main.tsx                 # React entry point
 │   └── index.css                # Tailwind v4 theme & typography
-│
 ├── ARCHITECTURE.md              # Engineering standards & guidelines
-├── package.json
-├── tsconfig.json
-├── vite.config.ts               # Vite configuration with chunk splitting
-└── README.md
+├── vercel.json                  # Vite framework + SPA rewrites
+└── package.json
 ```
 
----
-
-## 🏗️ Architecture & Data Flow
+## Architecture & Data Flow
 
 ```mermaid
 graph TD
@@ -141,12 +92,12 @@ graph TD
     end
 
     subgraph Network_Transport["Network Layer"]
-        SSE["chat-transport.service (SSE Streaming)"]
-        Axios["api.ts (Axios REST + JWT)"]
+        SSE["chat-transport.service (DefaultChatTransport + JWT)"]
+        Axios["api.ts (Axios REST + auth interceptors)"]
     end
 
     subgraph Backend_API["Better DEV API (NestJS)"]
-        ChatStream["POST /chat/conversations/:id/messages"]
+        ChatStream["POST /chat/conversations/:id/messages (SSE)"]
         UploadFile["POST /attachments/upload"]
         CRUD["GET/PATCH/DELETE /chat/conversations"]
     end
@@ -158,47 +109,50 @@ graph TD
     HookChat -.-> UploadFile
 ```
 
----
+## Getting Started
 
-## ⚙️ Environment Variables
+Prerequisites: Node.js 20.19+ (Vite 7 requirement).
 
-Create a `.env` file in the root directory:
+```bash
+# 1. Clone & install
+npm install
+
+# 2. Start the development server
+npm run dev
+```
+
+Open `http://localhost:3000` (override the port with `VITE_CLIENT_PORT`). A running instance of the API is expected at `http://localhost:3001` — see the [API repository](https://github.com/Kashif-Rezwi/better-dev-api).
+
+### Build & validation
+
+```bash
+npm run build    # TypeScript check + Vite production bundle
+npm run preview  # preview the production build locally
+npm run lint     # ESLint
+```
+
+## Environment Variables
+
+Create a `.env` file in the root:
 
 ```env
-# Vite Client Port
+# Vite dev server port
 VITE_CLIENT_PORT=3000
 
-# Backend API URL
+# Backend API base URL
 VITE_API_BASE_URL=http://localhost:3001
-# For production:
+# Production:
 # VITE_API_BASE_URL=https://better-dev-api.onrender.com
 ```
 
----
+## Deployment
 
-## 🚀 Getting Started
+The frontend is deployed to [Vercel](https://vercel.com). `vercel.json` configures the Vite build (`npm run build`, output `dist`) and rewrites all single-page application routes to `index.html`. Set `VITE_API_BASE_URL` in the Vercel project settings; deployments are connected through the Vercel dashboard.
 
-### 1. Clone & Install
-```bash
-git clone https://github.com/Kashif-Rezwi/better-dev-ui.git
-cd better-dev-ui
-npm install
-```
+## Related Repositories
 
-### 2. Run Development Server
-```bash
-npm run dev
-```
-Open `http://localhost:3000` in your browser.
+- [better-dev-api](https://github.com/Kashif-Rezwi/better-dev-api) — the NestJS backend this client talks to.
 
-### 3. Build & Preview Production Bundle
-```bash
-npm run build
-npm run preview
-```
+## License
 
----
-
-## 🌐 Deployment
-
-The frontend is deployed to [Vercel](https://vercel.com) with automatic continuous deployment from the `main` branch. All single-page application routes are redirected to `index.html` via `vercel.json`.
+No license file is present.
