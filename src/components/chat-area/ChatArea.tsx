@@ -199,27 +199,11 @@ export function ChatArea({
         {/* At /chat/:id - Loading skeleton */}
         {hasConversation && loading && <ChatSkeleton />}
 
-        {/* At /chat/:id - Loaded but no messages */}
+        {/* At /chat/:id - Loaded but no messages: show greeting, no duplicate composer */}
         {hasConversation && !loading && !hasMessages && (
-          <div className="h-full flex items-center justify-center px-4">
+          <div className="h-full flex items-center justify-center px-4 pb-[168px]">
             <div className="flex flex-col items-center gap-8 w-full max-w-3xl">
               <Greeting />
-              <div className="w-full">
-                <Composer
-                  message={message}
-                  setMessage={setMessage}
-                  onSend={handleSend}
-                  onKeyDown={handleKeyDown}
-                  disabled={isDisabled}
-                  isStreaming={false}
-                  textareaRef={textareaRef}
-                  showModeSelector={hasConversation}
-                  attachments={attachments}
-                  onAttachmentAdd={handleAttachmentAdd}
-                  onAttachmentRemove={handleAttachmentRemove}
-                  isUploading={isUploading}
-                />
-              </div>
             </div>
           </div>
         )}
