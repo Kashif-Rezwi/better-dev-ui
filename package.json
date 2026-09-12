@@ -1,7 +1,8 @@
 {
   "name": "better-dev-ui",
+  "version": "1.0.0",
+  "description": "React 19 web client for Better DEV: dark-mode AI chat interface with Vercel AI SDK v5 SSE streaming, Tavily tool cards, and TanStack Query.",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -57,5 +58,21 @@
     "@tailwindcss/oxide-linux-x64-musl": "^4.1.14",
     "lightningcss-darwin-arm64": "^1.30.1",
     "lightningcss-linux-x64-gnu": "^1.30.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Kashif-Rezwi/better-dev-ui.git"
+  },
+  "keywords": [
+    "react19",
+    "typescript",
+    "vite",
+    "tailwindcss-v4",
+    "vercel-ai-sdk",
+    "tanstack-query",
+    "radix-ui",
+    "sse",
+    "ai-chat"
+  ],
+  "homepage": "https://better-dev-ui.vercel.app"
 }
