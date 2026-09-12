@@ -7,6 +7,7 @@
 [![Vite](https://img.shields.io/badge/Vite-7-646CFF?style=flat&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4?style=flat&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![Vercel AI SDK](https://img.shields.io/badge/Vercel_AI_SDK-v5-black?style=flat&logo=vercel&logoColor=white)](https://sdk.vercel.ai/)
+[![CI](https://github.com/Kashif-Rezwi/better-dev-ui/actions/workflows/ci.yml/badge.svg)](https://github.com/Kashif-Rezwi/better-dev-ui/actions)
 
 ## Overview
 
@@ -50,7 +51,7 @@ Better DEV UI is the frontend for the [Better DEV API](https://github.com/Kashif
 | Styling & UI | Tailwind CSS 4, Radix UI primitives, Ionicons (react-icons), Sonner |
 | State & cache | TanStack Query v5, React Hook Form, safe localStorage wrapper |
 | Streaming & AI | Vercel AI SDK v5 (`useChat`, `DefaultChatTransport`) |
-| Markdown | `react-markdown`, `remark-gfm` |
+| Markdown & Security | `react-markdown`, `remark-gfm`, `rehype-raw`, `rehype-sanitize` |
 
 ## Project Structure
 
@@ -134,10 +135,14 @@ Open `http://localhost:3000` (override the port with `VITE_CLIENT_PORT`). A runn
 ### Build & validation
 
 ```bash
-npm run build    # TypeScript check + Vite production bundle
+npm run build    # TypeScript check (tsc -b) + Vite production bundle
+npm run lint     # ESLint static analysis
 npm run preview  # preview the production build locally
-npm run lint     # ESLint
 ```
+
+## CI
+
+GitHub Actions runs on pushes and pull requests to `main` and `develop`: installs dependencies (`npm ci`), verifies static analysis (`npm run lint`), and compiles the production bundle (`npm run build`).
 
 ## Environment Variables
 
