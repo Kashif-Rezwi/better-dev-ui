@@ -1,4 +1,5 @@
-import { api, getErrorMessage } from './api';
+import type { AxiosRequestHeaders } from 'axios';
+import { api, getErrorMessage, isStorageUnavailableMessage } from './api';
 import { API_CONFIG } from '../constants';
 import { ALLOWED_FILE_TYPES, MAX_FILE_SIZE } from '../types';
 
@@ -73,23 +74,20 @@ export async function uploadAttachment(
   formData.append('conversationId', conversationId);
 
   try {
-    const response = await api.post<UploadResponse>(
-      '/attachments/upload',
-      formData,
-      {
-        headers: {
-          'Content-Type': undefined,
-        },
-        onUploadProgress: (progressEvent) => {
-          if (onProgress && progressEvent.total) {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
-            onProgress(percentCompleted);
-          }
-        },
-      }
-    );
+    const response = await api.post<UploadResponse>('/attachments/upload', formData, {
+      // Let the browser set the multipart boundary: omit the JSON default.
+      // Deleting Content-Type is supported by AxiosRequestHeaders' index signature
+      // (AxiosHeaders extends RawAxiosHeaders). Never set multipart/form-data manually.
+      headers: { 'Content-Type': undefined } as unknown as AxiosRequestHeaders,
+      // Uploads can be 10MB – keep generous timeout and don't retry auth-intercepted 401s
+      timeout: 60000,
+      onUploadProgress: (progressEvent) => {
+        if (onProgress && progressEvent.total) {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          onProgress(percentCompleted);
+        }
+      },
+    });
 
     if (!response.data?.storageUrl || !response.data?.id) {
       throw new Error('Invalid response from server: missing storageUrl or id');
@@ -106,6 +104,10 @@ export async function uploadAttachment(
     };
   } catch (error) {
     const errorMessage = getErrorMessage(error);
+    // Avoid double-wrapping if getErrorMessage already returned a friendly storage-unavailable message
+    if (isStorageUnavailableMessage(errorMessage)) {
+      throw new Error(errorMessage);
+    }
     throw new Error(`Upload failed: ${errorMessage}`);
   }
 }
