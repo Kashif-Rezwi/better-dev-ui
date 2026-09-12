@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { Attachment } from '../../types';
 import { validateFile, uploadAttachment } from '../../services/upload.service';
+import { isStorageUnavailableMessage } from '../../services/api';
 import { toast } from '../../utils/toast';
 
 const MAX_ATTACHMENTS = 5;
@@ -72,18 +73,24 @@ export function useChatAttachments(conversationId?: string) {
         );
         toast.success('File uploaded successfully');
       } catch (error) {
+        const rawMessage = error instanceof Error ? error.message : 'Upload failed';
         setAttachments((prev) =>
           prev.map((att) =>
             att.id === attachment.id
               ? {
                   ...att,
                   status: 'error' as const,
-                  error: error instanceof Error ? error.message : 'Upload failed',
+                  error: rawMessage,
                 }
               : att
           )
         );
-        toast.error('Failed to upload file');
+        // Surface storage-paused (503) with actionable detail; otherwise generic
+        if (isStorageUnavailableMessage(rawMessage)) {
+          toast.error(rawMessage);
+        } else {
+          toast.error(rawMessage.includes('Upload failed') ? rawMessage : `Failed to upload file: ${rawMessage}`);
+        }
       } finally {
         setIsUploading(false);
       }
