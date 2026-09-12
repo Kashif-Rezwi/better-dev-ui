@@ -80,33 +80,41 @@ better-dev-ui/
 
 ## Architecture & Data Flow
 
-```mermaid
-graph TD
-    subgraph User_Action["User Action"]
-        Input["User types prompt & selects attachments"]
-    end
-
-    subgraph React_State_Hooks["React Hooks & State"]
-        HookChat["useConversationMessages (AI SDK v5)"]
-        HookQuery["useConversations (TanStack Query)"]
-    end
-
-    subgraph Network_Transport["Network Layer"]
-        SSE["chat-transport.service (DefaultChatTransport + JWT)"]
-        Axios["api.ts (Axios REST + auth interceptors)"]
-    end
-
-    subgraph Backend_API["Better DEV API (NestJS)"]
-        ChatStream["POST /chat/conversations/:id/messages (SSE)"]
-        UploadFile["POST /attachments/upload"]
-        CRUD["GET/PATCH/DELETE /chat/conversations"]
-    end
-
-    Input --> HookChat
-    Input --> HookQuery
-    HookChat --> SSE --> ChatStream
-    HookQuery --> Axios --> CRUD
-    HookChat -.-> UploadFile
+```text
+┌────────────────────────────────────────────────────────────────────────┐
+│                              USER ACTION                               │
+│             User types prompt & selects file attachments               │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │
+                                    ▼
+┌───────────────────────────────────┴────────────────────────────────────┐
+│                          REACT HOOKS & STATE                           │
+│                                                                        │
+│   useConversationMessages (AI SDK v5)   useConversations (TanStack)    │
+│   • Manages message stream & composer   • Manages conversation CRUD    │
+│   • Handles optimistic UI & uploads     • Server state & query cache   │
+└──────────────────┬───────────────────┬───────────────────┬─────────────┘
+                   │                   │                   │
+                   │ (attachments)     │ (stream)          │ (REST CRUD)
+                   ▼                   ▼                   ▼
+┌──────────────────┴───────────────────┴───────────────────┴─────────────┐
+│                             NETWORK LAYER                              │
+│                                                                        │
+│   upload.service / Axios               chat-transport.service          │
+│   • Multipart form-data upload         • DefaultChatTransport + JWT    │
+│   • Authorization bearer header        • SSE persistent stream         │
+└──────────────────┬───────────────────┬───────────────────┬─────────────┘
+                   │                   │                   │
+                   ▼                   ▼                   ▼
+┌──────────────────┴───────────────────┴───────────────────┴─────────────┐
+│                        BETTER DEV API (NestJS)                         │
+│                                                                        │
+│   POST /attachments/upload             POST /chat/.../messages (SSE)   │
+│   • File ingestion & OCR               • Real-time token streaming     │
+│                                                                        │
+│                 GET / PATCH / DELETE /chat/conversations               │
+│                 • Conversation list, titles, and prompt persistence    │
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Getting Started
