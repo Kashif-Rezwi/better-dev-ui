@@ -163,6 +163,15 @@ body {
   border: 1px solid #2a2a2a;
 }
 
+.prose .md-table-wrapper {
+  overflow-x: auto;
+  margin: 1.5em 0;
+}
+
+.prose .md-table-wrapper table {
+  margin: 0;
+}
+
 .prose table {
   width: 100%;
   border-collapse: collapse;
