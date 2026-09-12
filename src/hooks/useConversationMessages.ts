@@ -8,7 +8,7 @@ import { toUIMessages } from '../utils/message';
 import type { UIMessage, ChatRouterState, Attachment, MessagePart } from '../types';
 
 export function useConversationMessages(conversationId?: string) {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(Boolean(conversationId));
   const [showScrollButton, setShowScrollButton] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -40,14 +40,18 @@ export function useConversationMessages(conversationId?: string) {
     }
   }, [setMessages]);
 
-  // Reset trigger flag when conversation changes
+  // Reset trigger flag and start loading indicator eagerly when conversation changes
   useEffect(() => {
     hasTriggeredRef.current = false;
   }, [conversationId]);
 
-  // Load conversation messages when conversationId changes
+  // Load conversation messages when conversationId changes.
+  // We set loading=true immediately (before the async fetch) so that the
+  // ChatArea never renders in the transient !loading && !hasMessages state
+  // that was causing the duplicate composer to appear.
   useEffect(() => {
     if (conversationId) {
+      setLoading(true);
       loadConversation(conversationId);
     } else {
       if (setMessages) {
